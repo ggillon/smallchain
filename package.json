@@ -1,0 +1,23 @@
+{
+  "name": "smallchain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --watchAll"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ggillon/smallchain.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ggillon/smallchain/issues"
+  },
+  "homepage": "https://github.com/ggillon/smallchain#readme",
+  "dependencies": {
+    "jest": "^23.6.0"
+  }
+}
