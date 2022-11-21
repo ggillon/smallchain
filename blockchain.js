@@ -17,7 +17,8 @@ class Blockchain{
 
     static isValidChain(chain) {
         if(JSON.stringify(chain[0]) !== JSON.stringify(Block.genesis())) { return false; }
-        for(let i=1; i<(chain.length-1); i++) {
+        for(let i=1; i<chain.length; i++) {
+            if (Math.abs(chain[i].difficulty - chain[i-1].difficulty)>1) { return false; }
             if(chain[i].hash !== Block.hashBlock(chain[i])) { return false; }
             if(chain[i].lastHash !== chain[i-1].hash) { return false; }
         }
