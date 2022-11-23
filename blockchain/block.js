@@ -1,5 +1,5 @@
-const {GENESIS_DATA, MINE_RATE} = require('./config');
-const cryptoHash = require('./crypto-hash');
+const {GENESIS_DATA, MINE_RATE} = require('../config');
+const cryptoHash = require('../util/crypto-hash');
 const hexToBinary = require('hex-to-binary');
 
 class Block {
@@ -13,14 +13,14 @@ class Block {
         this.difficulty = difficulty; 
     }
 
-    toString() {
+    /*toString() {
         return `View -  Block
             timestamp: ${this.timestamp}
             lastHash : ${this.lastHash}
             hash     : ${this.hash}
             data     : ${this.data}
         `;
-    }
+    }*/
 
     static genesis() {
         return new Block(GENESIS_DATA);
