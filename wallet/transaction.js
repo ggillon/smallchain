@@ -26,6 +26,23 @@ class Transaction {
         return outputMap;
     }
 
+    update( { senderWallet, recipient, amount } ) {
+        
+        if(amount > this.outputMap[senderWallet.publicKey] ) {       
+            throw new Error(`Amount: ${amount} exceeds remaining balance (${this.outputMap[senderWallet.publicKey] } )`);
+        }
+        this.outputMap[senderWallet.publicKey] -= amount;
+
+        if(this.outputMap[recipient]) {
+            this.outputMap[recipient] += amount; 
+        } else {
+            this.outputMap[recipient] = amount;
+        }
+        this.input = this.createInput( { senderWallet, outputMap: this.outputMap} )
+
+        return this;
+    }
+
     static validTransaction(transaction) {
         const { input: { address, amount, signature } , outputMap } = transaction;
 
