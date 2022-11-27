@@ -36,20 +36,27 @@ class PubSub {
     handleMessage({channel, message}) {
         
         console.log(`Message received. Channel : ${channel}`);
-        if(channel == CHANNELS.TEST) {
-            console.log(`Test message - Message: ${message}.`);
-        }
-        
-        if(channel == CHANNELS.BLOCKCHAIN) {
-            const chain = JSON.parse(message);
-            this.blockchain.replaceChain(chain);
-        } 
 
-        if(channel == CHANNELS.TRANSACTION) {
-            const transaction = JSON.parse(message);
-        this.transactionPool.setTransaction(transaction);
+        switch(channel) {
+            case CHANNELS.TEST:
+                console.log(`Test message - Message: ${message}.`);
+                break;
+            case CHANNELS.BLOCKCHAIN:
+                const chain = JSON.parse(message);
+                this.blockchain.replaceChain(chain, true, ()=>{
+                    this.transactionPool.clearBlockainTransactions( { chain } );
+                });
+                break;
+            case CHANNELS.TRANSACTION:
+                const transaction = JSON.parse(message);
+                this.transactionPool.setTransaction(transaction);
+                break;
+            default:
+                return;
         }
-    }
+
+        }
+
 }
 
 module.exports = PubSub, CHANNELS;

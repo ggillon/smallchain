@@ -5,6 +5,7 @@ const Blockchain = require('./blockchain');
 const PubSub = require('./app/pubsub');
 const TransactionPool = require('./wallet/transaction-pool');
 const Wallet = require('./wallet');
+const TransactionMiner = require('./app/transaction-miner');
 
 //let HTTP_PORT = process.env.HTTP_PORT || 3000;
 
@@ -22,19 +23,39 @@ app.use(bodyParser.json());
 const blockchain = new Blockchain();
 const transactionPool = new TransactionPool();
 const wallet = new Wallet();
-const pubSub = new PubSub({blockchain, transactionPool});
+const pubsub = new PubSub({blockchain, transactionPool});
+const transactionMiner = new TransactionMiner( {blockchain, transactionPool, wallet, pubsub });
 
 app.get('/api/blocks', (req, res) => {
     res.json(blockchain.chain);
 });
 
+app.get('/api/transact-pool-map', (req, res) => {
+    res.json(transactionPool.transactionMap);
+})
+
+app.get('/api/mine-transactions', (req, res) => {
+    transactionMiner.mineTransactions();
+    res.redirect('/api/blocks');
+})
+
+app.get('/api/wallet-info',(req, res) => {
+    const address = wallet.publicKey;
+    res.json({
+        address,
+        balance: Wallet.calculateBalance({
+            chain: blockchain.chain,
+            address,
+        })
+    })
+})
+
 app.post('/api/mine', (req, res) => {
     const { data } = req.body;
     blockchain.addBlock({ data });
-    //console.log(`New block added: ${blockchain.lastBlock()}`);
 
     //p2pserver.syncChain();
-    setTimeout(() => pubSub.broadcastChain(), 1000);
+    setTimeout(() => pubsub.broadcastChain(), 1000);
     
     res.redirect('/api/blocks');
 })
@@ -46,7 +67,7 @@ app.post('/api/transact', (req, res) => {
         if(transaction) {
             transaction.update({senderWallet: wallet, recipient, amount});
         } else {
-            transaction = wallet.createTransaction({recipient, amount});
+            transaction = wallet.createTransaction({recipient, amount, chain: blockchain.chain});
         }
     } catch(error) {
         return res.status(400).json({ type: 'error', message: error.message });
@@ -54,12 +75,8 @@ app.post('/api/transact', (req, res) => {
 
     
     transactionPool.setTransaction(transaction);
-    pubSub.broadcastTransaction(transaction);
+    pubsub.broadcastTransaction(transaction);
     res.json( { type: 'success', transaction });
-})
-
-app.get('/api/transact-pool-map', (req, res) => {
-    res.json(transactionPool.transactionMap);
 })
 
 const syncRoot = () => {
