@@ -13,15 +13,6 @@ class Block {
         this.difficulty = difficulty; 
     }
 
-    /*toString() {
-        return `View -  Block
-            timestamp: ${this.timestamp}
-            lastHash : ${this.lastHash}
-            hash     : ${this.hash}
-            data     : ${this.data}
-        `;
-    }*/
-
     static genesis() {
         return new Block(GENESIS_DATA);
     }
